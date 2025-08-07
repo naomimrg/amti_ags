@@ -155,16 +155,16 @@
         <div class="layout-page">
           <!-- Navbar -->
 
-          <nav style="border-radius: 20px;"
+          {{-- <nav style="border-radius: 20px;"
             class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
             id="layout-navbar">
             <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
               <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
                 <i class="bx bx-menu bx-sm"></i>
               </a>
-            </div>
+            </div> --}}
 
-            <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
+            {{-- <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
             <h5 class="my-0 px-2 black" style="color: black;">Monitoring</h5>
               <!-- Search -->
               <div class="navbar-nav align-items-center" style="width: 70%;border-radius: 13px;padding-left: 10px;background: #f3f3f3;">
@@ -177,9 +177,9 @@
                     aria-label="Search..." style="background: transparent;width: 100%;">
                 </div>
               </div>
-              <!-- /Search -->
+              <!-- /Search --> --}}
 
-              <ul class="navbar-nav flex-row align-items-center ms-auto">
+              {{-- <ul class="navbar-nav flex-row align-items-center ms-auto">
                 <!-- Place this tag where you want the button to render. -->
                 <li class="nav-item lh-1 me-3">
                   <i class='bx bx-sm bx-bell'></i>
@@ -221,9 +221,9 @@
                   </ul>
                 </li>
                 <!--/ User -->
-              </ul>
-            </div>
-          </nav>
+              </ul> --}}
+            {{-- </div>
+          </nav> --}}
           <!-- Content wrapper -->
          <div class="content-wrapper">
             <!-- Content -->
@@ -302,7 +302,7 @@
     </script>
     @endcan
     @yield('script')
-    <script>
+    {{-- <script>
     $.ajax({
         url: "{{ url('/getProfile') }}",
         dataType: "json",
@@ -312,6 +312,6 @@
             $('#avatar-logo-bottom').append('<img src="{{ url("/assets") }}/img/'+data.image+'" alt class="w-px-40 h-auto rounded-circle" />');
         }
     });
-	  </script>
+	  </script> --}}
   </body>
 </html>
