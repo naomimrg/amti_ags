@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 
 use Auth;
 use Illuminate\Http\Request;
+
 class LoginController extends Controller
 {
     /*
@@ -40,16 +41,49 @@ class LoginController extends Controller
         $this->middleware('guest')->except('logout');
     }
 
-    public function authenticated(Request $request, $user){
-      
+    public function login(Request $request)
+    {
+        $this->validateLogin($request);
+
+        //validasi captcha
+
+        $request->validate(
+            [
+                'g-recaptcha-response' => 'required|captcha'
+            ],
+            [
+                'g-recaptcha-response.required' => 'Captcha Harus Diisi',
+                'g-recaptcha-response.captcha' => 'Captcha Tidak Valid'
+            ]
+        );
+
+        if (
+            method_exists($this, 'hasTooManyLoginAttempts') &&
+            $this->hasTooManyLoginAttempts($request)
+        ) {
+            $this->fireLockoutEvent($request);
+            return $this->sendLockoutResponse($request);
+        }
+
+        if ($this->attemptLogin($request)) {
+            return $this->sendLoginResponse($request);
+        }
+
+        $this->incrementLoginAttempts($request);
+        return $this->sendFailedLoginResponse($request);
+    }
+
+    public function authenticated(Request $request, $user)
+    {
+
         $user = \Auth::user()->role;
-        if($user == 'Super Admin'){
+        if ($user == 'Super Admin') {
             return redirect('dashboard');
-        }elseif($user == 'Admin GSI'){
+        } elseif ($user == 'Admin GSI') {
             return redirect('dashboard');
-        }elseif($user == 'Admin Vendor'){
+        } elseif ($user == 'Admin Vendor') {
             return redirect('profile');
-        }elseif($user == 'User'){
+        } elseif ($user == 'User') {
             return redirect('profile');
         }
     }

@@ -98,11 +98,12 @@
                     </div>
                   </div>
                   <div class="mb-3">
-                    <div class="form-check">
-                      <input
-                        style="border-radius: 10px;font-size: 13px;background: #d7d7d7;border: none;"
-                        class="form-check-input" type="checkbox" id="remember-me" />
-                      <label class="form-check-label" for="remember-me"> Remember Me </label>
+                    <div class="form-group">
+                      {!! NoCaptcha::renderJs() !!}
+                      {!! NoCaptcha::display() !!}
+                      @error('g-recaptcha-response')
+                      <span class="text-danger">{{ $message }}</span>
+                      @enderror
                     </div>
                   </div>
                   <div class="mb-3">
