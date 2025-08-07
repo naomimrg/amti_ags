@@ -113,12 +113,6 @@
                         type="submit">{{ __('Login') }}</button>
                     </center>
                   </div>
-                  <center>
-                    <a style="color:gray;" href="{{ url('/password/reset')}}">
-                      <small>Forgot your password?</small>
-                    </a>
-                  </center>
-
                 </form>
               </div>
             </div>
