@@ -1,0 +1,334 @@
+@extends('layouts.admin')
+@section('title', 'Report')
+@section('style')
+<link rel="stylesheet" type="text/css" href="{{ url('/assets') }}/css/dataTables.bootstrap4.min.css">
+ <style>
+.form-group{
+    margin-bottom: 10px;
+    color: black;
+}
+.form-control{
+    color: black;
+}
+</style>
+
+@endsection
+@section('content')
+        
+                    <div class="col-12">
+                        <div class="row">
+                            <div class="col-6">
+                                <h5 class="black-color">Report</h5>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xl-12 col-lg-12">
+                                <div class="card mb-3" style="padding:10px 0px 0px 10px;">
+                                    <div class="row">
+                                        <div class="col-3">
+                                            <div class="form-group">
+                                                <select id="id_lokasi" class="form-control select2" name="id_lokasi" data-placeholder="id_lokasi" required="required">
+                                                    <option value="">-- Pilih Lokasi --</option>
+                                                    @foreach($lokasi as $data)
+                                                    <option value="{{$data->slug}}">{{$data->nama_lokasi}}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-2">
+                                            <div class="form-group">
+                                                <select id="id_span" class="form-control select2" name="id_span" data-placeholder="id_span" required="required">
+                                                    <option value="">-- Pilih Span --</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-2">
+                                            <div class="form-group">
+                                                <select id="id_sensor" class="form-control select2" name="id_sensor" data-placeholder="id_sensor" required="required">
+                                                    <option value="">-- Pilih Sensor --</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-2">
+                                            <div class="form-group">
+                                                <input class="form-control" name="from_date" type="date" value="" id="from_date" placeholder="Dari tanggal"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-2">
+                                            <div class="form-group">
+                                                <input class="form-control" name="to_date" type="date" value="" id="to_date" placeholder="Sampai tanggal" />
+                                            </div>
+                                        </div>
+                                        <div class="col-1">
+                                            <div class="form-group">
+                                                <button class="action btn btn-primary waves-effect waves-light" type="submit" id="search-data" onclick="searchData()">Cari</button>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                        <p style="color:black;font-weight:bold;" id="resultfilter"></p>
+
+                            <div class="col-xl-12 col-lg-12 mb-2">
+                                <div class="card">
+                                    <div class="card-block">
+                                    <div id="container-chart" style=" width: 100%;height: 300px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-12 col-lg-12">
+                                <div class="card" style="padding:10px">
+                                    <div class="table-body">
+                                        <div class="table-responsive" style="overflow-x: hidden;">
+                                            <table id="table-report" class="table table-bordered" style="font-size: 11px;">
+                                                <thead style="background: #0ec8cf;color: white;">
+                                                    <tr class=" text-center">
+                                                        <th style="color: white;">No</th>
+                                                        <th style="color: white;">Waktu</th>
+                                                        <th style="color: white;">Nama Sensor</th>
+                                                        <th style="color: white;">Value</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                </tbody>
+                                            </table>
+                                        </div>   
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <!-- / Content -->
+@endsection
+@section('script')
+<script src="{{ url('/assets') }}/js/datatables/jquery.dataTables.min.js"></script>
+<script src="{{ url('/assets') }}/js/datatables/dataTables.bootstrap4.min.js"></script>
+
+<script src="https://cdn.amcharts.com/lib/4/core.js"></script>
+<script src="https://cdn.amcharts.com/lib/4/charts.js"></script>
+<script src="https://cdn.amcharts.com/lib/4/plugins/rangeSelector.js"></script>
+<script src="https://cdn.amcharts.com/lib/4/themes/animated.js"></script>
+
+<script>
+    
+</script>
+<script type="text/javascript">
+    $.ajaxSetup({
+        headers: {
+            'csrftoken': '{{ csrf_token() }}'
+        }
+    });
+    
+    
+    $("#id_lokasi").change(function(){
+	var id_lokasi = $(this).val();
+		$.ajax({
+			type: "get",
+            url: "{{ url('/listLokasiSpan/') }}/"+id_lokasi,
+            cache: false, 
+            success: function(data){
+                if(data){
+                    $('#id_span').empty();
+                    $('#id_span').append('<option hidden>-- Pilih Span --</option>'); 
+                    $.each(data.items, function(index, item) {
+                        $("#id_span").append('<option value="'+item.id+'">'+item.nama_span+'</option>');
+                    });  
+                }else{
+                    $('#id_span').empty();
+                }
+                      
+            }
+		});
+	});
+
+    $("#id_span").change(function(){
+	var id_span = $(this).val();
+		$.ajax({
+			type: "get",
+            url: "{{ url('/listSensor/') }}/"+id_span,
+            cache: false, 
+            success: function(data){
+                if(data){
+                    $('#id_sensor').empty();
+                    $('#id_sensor').append('<option hidden>-- Pilih Sensor --</option>'); 
+                    $.each(data.items, function(index, item) {
+                        $("#id_sensor").append('<option value="'+item.id+'">'+item.nama_sensor+'</option>');
+                    });  
+                }else{
+                    $('#id_sensor').empty();
+                }
+                      
+            }
+		});
+	});
+    from_date = $('#from_date').val();
+    to_date = $('#to_date').val();
+    id_sensor = $('#id_sensor').val();
+    $('#table-report').DataTable().destroy();
+    $('#table-report').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: "{{ url('/report/list-report') }}?id_sensor="+id_sensor+'&from_date='+from_date+'&to_date='+to_date,
+        columns: [
+            {data: 'id', name: 'id'},
+            {data: 'time', name: 'time'},
+            {data: 'nama_sensor', name: 'nama_sensor'},
+            {data: 'value', name: 'value'}
+        ]
+    });
+
+    function searchData(){
+		from_date = $('#from_date').val();
+		to_date = $('#to_date').val();
+		id_sensor = $('#id_sensor').val();
+        $('#table-report').DataTable().destroy();
+        $('#table-report').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: "{{ url('/report/list-report') }}?id_sensor="+id_sensor+'&from_date='+from_date+'&to_date='+to_date,
+            columns: [
+                {data: 'id', name: 'id'},
+                {data: 'time', name: 'time'},
+                {data: 'nama_sensor', name: 'nama_sensor'},
+                {data: 'value', name: 'value'}
+            ]
+        });
+
+       
+        am4core.ready(function() {
+            var dataC = [];
+            var i;
+            $.ajax({
+                url: "{{ url('/report/chartList') }}?id_sensor="+id_sensor+'&from_date='+from_date+'&to_date='+to_date,
+                dataType: "json",
+                async: false,
+                type: "GET",
+                success: function(data) {
+                    $.each(data, function(index, item) {
+                        var newDate = item.datetime;
+                        dataC.push({
+                            date: new Date(newDate),
+                            value: item.value,
+                            batas_bawah: item.batas_bawah,
+                            batas_atas: item.batas_atas,
+                        })
+                    });
+                }
+            });
+            am4core.useTheme(am4themes_animated);
+            
+            var chart = am4core.create("container-chart", am4charts.XYChart);
+            chart.data = dataC;
+            // Create axes
+            var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+                dateAxis.groupData = true;
+        
+            dateAxis.groupIntervals.setAll([
+                {
+                    timeUnit: "minute",
+                    count: 1
+                },
+                {
+                    timeUnit: "hour",
+                    count: 1
+                },
+                {
+                    timeUnit: "day",
+                    count: 1
+                },
+                { 
+                    timeUnit: "day", 
+                    count: 3 },
+                {
+                    timeUnit: "week",
+                    count: 1
+                },
+                {
+                    timeUnit: "month",
+                    count: 1
+                },
+                {
+                    timeUnit: "year",
+                    count: 1
+                },
+            ]);
+        
+            var valueAxis1 = chart.yAxes.push(new am4charts.ValueAxis());
+            valueAxis1.title.text = "Sensor";
+            valueAxis1.renderer.grid.template.disabled = true;
+            
+            var series1 = chart.series.push(new am4charts.LineSeries());
+            series1.dataFields.valueY = "value";
+            series1.dataFields.dateX = "date";
+            series1.name = "Sensor";
+            series1.strokeWidth = 2;
+            series1.tensionX = 0.7;
+            series1.yAxis = valueAxis1;
+            series1.tooltipText = "{name}\n[bold font-size: 20]{valueY}[/]";
+            
+            var bullet1 = series1.bullets.push(new am4charts.CircleBullet());
+            bullet1.circle.radius = 3;
+            bullet1.circle.strokeWidth = 2;
+            bullet1.circle.fill = am4core.color("#fff");
+            
+            var series2 = chart.series.push(new am4charts.LineSeries());
+            series2.dataFields.valueY = "batas_bawah";
+            series2.dataFields.dateX = "date";
+            series2.name = "Ambang Batas Bawah";
+            series2.yAxis = valueAxis1;
+            series2.stroke = am4core.color("#000000");
+
+            
+            /*var bullet2 = series2.bullets.push(new am4charts.CircleBullet());
+            bullet2.circle.radius = 1;
+            bullet2.circle.strokeWidth = 1;
+            bullet2.circle.fill = am4core.color("#fff");*/
+            
+            var series3 = chart.series.push(new am4charts.LineSeries());
+            series3.dataFields.valueY = "batas_atas";
+            series3.dataFields.dateX = "date";
+            series3.name = "Ambang Batas Atas";
+            series3.yAxis = valueAxis1;
+            series3.stroke = am4core.color("#ff0000");
+            
+            /*var bullet3 = series3.bullets.push(new am4charts.CircleBullet());
+            bullet3.circle.radius = 3;
+            bullet3.circle.strokeWidth = 2;
+            bullet3.circle.fill = am4core.color("#fff");*/
+            
+            // Add cursor
+            chart.cursor = new am4charts.XYCursor();
+            
+            // Add legend
+            chart.legend = new am4charts.Legend();
+            chart.legend.position = "top";
+            
+            // Add scrollbar
+            chart.scrollbarX = new am4charts.XYChartScrollbar();
+            chart.scrollbarX.series.push(series1);
+            chart.scrollbarX.series.push(series2);
+            chart.scrollbarX.series.push(series3);
+            chart.scrollbarX.parent = chart.bottomAxesContainer;
+        });	
+        var lokasi = document.getElementById("id_lokasi");
+        var nama_lokasi = lokasi.options[lokasi.selectedIndex].text;
+        var span = document.getElementById("id_span");
+        var nama_span = span.options[span.selectedIndex].text;
+        var sensor = document.getElementById("id_sensor");
+        var nama_sensor = sensor.options[sensor.selectedIndex].text;
+        $("#resultfilter").html('Data '+nama_lokasi+' - '+nama_span+' - '+nama_sensor+' tanggal '+from_date+' - '+to_date+'');
+        
+	}
+    $('form').bind("keypress", function(e) {
+        if (e.keyCode == 13) {               
+            e.preventDefault();
+            return false;
+        }
+    });
+    
+</script>
+@endsection
