@@ -59,11 +59,6 @@
                 <div class="authentication-wrapper authentication-basic container-p-y">
                     <div class="authentication-inner" style="max-width: 300px;">
                         <!-- Register -->
-                        {{-- Tambahkan di bagian head layout atau view --}}
-                        <script
-                            src="https://www.google.com/recaptcha/api.js?render={{ $recaptchaSiteKey ?? '6LfDfaMrAAAAHircomP-Vqjo_iy_bliqwEey5YD' }}">
-                        </script>
-
                         <div class="card" style="background: #0000006b;border-radius: 25px;">
                             <div class="card-body">
                                 <!-- Logo -->
@@ -71,16 +66,11 @@
                                     <h5 style="color:white;padding:10px;text-align: center;">LOGIN</h5>
                                 </div>
                                 <!-- /Logo -->
-
-                                {{-- Loading/Status Alert --}}
-                                <div id="statusAlert" class="alert"
-                                    style="display: none; margin: 15px 20px; border-radius: 15px;"></div>
-
                                 <form id="formAuthentication" class="mb-3" method="POST" action="{{ route('login') }}"
                                     style="padding-left:20px;padding-right:20px;">
                                     @csrf
-
                                     <div class="mb-3">
+
                                         <input style="background:#817b84;border-radius:15px;border:none;color:white;"
                                             type="email" class="form-control @error('email') is-invalid @enderror"
                                             id="email" name="email" placeholder="email" value="{{ old('email') }}"
@@ -91,8 +81,8 @@
                                         </span>
                                         @enderror
                                     </div>
-
                                     <div class="mb-3 form-password-toggle">
+
                                         <div class="input-group input-group-merge">
                                             <input
                                                 style="background:#817b84;border-radius:15px;border:none;color:white;"
@@ -107,198 +97,25 @@
                                             @enderror
                                         </div>
                                     </div>
-
-                                    {{-- Hidden field untuk reCAPTCHA v3 token --}}
-                                    <input type="hidden" name="g-recaptcha-response" id="recaptchaToken">
-
-                                    {{-- Error handling untuk reCAPTCHA --}}
-                                    @error('g-recaptcha-response')
                                     <div class="mb-3">
-                                        <span class="text-danger"
-                                            style="color: #ff6b6b !important;">{{ $message }}</span>
+                                        <div class="form-group">
+                                            {!! NoCaptcha::renderJs() !!}
+                                            {!! NoCaptcha::display() !!}
+                                            @error('g-recaptcha-response')
+                                            <span class="text-danger">{{ $message }}</span>
+                                            @enderror
+                                        </div>
                                     </div>
-                                    @enderror
-
-                                    @error('recaptcha')
-                                    <div class="mb-3">
-                                        <span class="text-danger"
-                                            style="color: #ff6b6b !important;">{{ $message }}</span>
-                                    </div>
-                                    @enderror
-
-                                    {{-- reCAPTCHA v3 Info --}}
-                                    <div class="mb-3">
-                                        <small
-                                            style="color: #ccc; text-align: center; display: block; font-size: 11px;">
-                                            🛡️ Protected by reCAPTCHA v3
-                                        </small>
-                                    </div>
-
                                     <div class="mb-3">
                                         <center>
-                                            <button id="loginBtn" class="btn d-grid w-50"
-                                                style="background:#6e56ff;color:white;width: 70%!important;border-radius: 25px;text-transform: uppercase;position: relative;"
-                                                type="submit">
-                                                <span id="btnText">{{ __('Login') }}</span>
-                                                <div id="loadingSpinner" style="display: none;">
-                                                    <div
-                                                        style="width: 20px; height: 20px; border: 2px solid #ffffff; border-top: 2px solid transparent; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;">
-                                                    </div>
-                                                </div>
-                                            </button>
+                                            <button class="btn  d-grid w-50"
+                                                style="background:#6e56ff;color:white;width: 70%!important;border-radius: 25px;text-transform: uppercase;"
+                                                type="submit">{{ __('Login') }}</button>
                                         </center>
                                     </div>
                                 </form>
                             </div>
                         </div>
-
-                        <style>
-                        @keyframes spin {
-                            0% {
-                                transform: rotate(0deg);
-                            }
-
-                            100% {
-                                transform: rotate(360deg);
-                            }
-                        }
-
-                        .alert {
-                            padding: 10px 15px;
-                            border-radius: 15px;
-                            font-size: 14px;
-                        }
-
-                        .alert-success {
-                            background: rgba(40, 167, 69, 0.8);
-                            color: white;
-                            border: 1px solid rgba(40, 167, 69, 0.5);
-                        }
-
-                        .alert-error {
-                            background: rgba(220, 53, 69, 0.8);
-                            color: white;
-                            border: 1px solid rgba(220, 53, 69, 0.5);
-                        }
-
-                        .alert-info {
-                            background: rgba(23, 162, 184, 0.8);
-                            color: white;
-                            border: 1px solid rgba(23, 162, 184, 0.5);
-                        }
-
-                        #loginBtn:disabled {
-                            opacity: 0.7;
-                            cursor: not-allowed;
-                        }
-                        </style>
-
-                        <script>
-                        grecaptcha.ready(function() {
-                            console.log('reCAPTCHA v3 loaded successfully');
-
-                            const form = document.getElementById('formAuthentication');
-                            const statusAlert = document.getElementById('statusAlert');
-                            const loginBtn = document.getElementById('loginBtn');
-                            const btnText = document.getElementById('btnText');
-                            const spinner = document.getElementById('loadingSpinner');
-
-                            form.addEventListener('submit', function(e) {
-                                e.preventDefault();
-
-                                // Show loading state
-                                setLoadingState(true);
-                                showAlert('🔐 Verifying security...', 'info');
-
-                                // Execute reCAPTCHA v3
-                                grecaptcha.execute(
-                                    '{{ $recaptchaSiteKey ?? "6LfDfaMrAAAAHircomP-Vqjo_iy_bliqwEey5YD" }}', {
-                                        action: 'login'
-                                    }).then(function(token) {
-                                    console.log('reCAPTCHA token received');
-
-                                    // Set token di hidden field
-                                    document.getElementById('recaptchaToken').value = token;
-
-                                    // Submit form secara normal (bukan AJAX)
-                                    showAlert('✅ Security verified, logging in...', 'success');
-
-                                    // Delay sedikit untuk user experience
-                                    setTimeout(() => {
-                                        form.submit();
-                                    }, 800);
-
-                                }).catch(function(error) {
-                                    console.error('reCAPTCHA error:', error);
-                                    showAlert(
-                                        '❌ Security verification failed. Please refresh and try again.',
-                                        'error');
-                                    setLoadingState(false);
-                                });
-                            });
-
-                            function setLoadingState(loading) {
-                                loginBtn.disabled = loading;
-                                if (loading) {
-                                    btnText.style.display = 'none';
-                                    spinner.style.display = 'block';
-                                } else {
-                                    btnText.style.display = 'block';
-                                    spinner.style.display = 'none';
-                                }
-                            }
-
-                            function showAlert(message, type) {
-                                statusAlert.innerHTML = message;
-                                statusAlert.className = 'alert alert-' + type;
-                                statusAlert.style.display = 'block';
-
-                                // Auto hide success messages
-                                if (type === 'success') {
-                                    setTimeout(() => {
-                                        statusAlert.style.display = 'none';
-                                    }, 3000);
-                                }
-                            }
-
-                            // Hide alert when user starts typing
-                            ['email', 'password'].forEach(id => {
-                                document.getElementById(id).addEventListener('input', function() {
-                                    if (statusAlert.style.display !== 'none') {
-                                        statusAlert.style.display = 'none';
-                                    }
-                                });
-                            });
-                        });
-
-                        // Test function untuk debugging (hapus di production)
-                        function testRecaptcha() {
-                            grecaptcha.execute('{{ $recaptchaSiteKey ?? "6LfDfaMrAAAAHircomP-Vqjo_iy_bliqwEey5YD" }}', {
-                                action: 'test'
-                            }).then(function(token) {
-                                console.log('Test reCAPTCHA token:', token.substring(0, 20) + '...');
-
-                                fetch('{{ route("test.recaptcha") ?? "/test-recaptcha" }}', {
-                                        method: 'POST',
-                                        headers: {
-                                            'Content-Type': 'application/json',
-                                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                        },
-                                        body: JSON.stringify({
-                                            token: token,
-                                            action: 'test'
-                                        })
-                                    })
-                                    .then(response => response.json())
-                                    .then(data => {
-                                        console.log('reCAPTCHA Test Result:', data);
-                                    })
-                                    .catch(error => {
-                                        console.error('Test error:', error);
-                                    });
-                            });
-                        }
-                        </script>
                         <!-- /Register -->
                     </div>
                 </div>
