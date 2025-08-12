@@ -51,19 +51,6 @@
         justify-content: center;
     }
 
-    .wrap {
-        width: 100%;
-        max-width: 1000px;
-        display: grid;
-        grid-template-columns: 1fr 380px;
-        gap: 40px;
-        padding: 20px;
-    }
-
-    .hero {
-        animation: fadeIn 0.8s ease forwards;
-    }
-
     .eyebrow {
         color: var(--muted);
         font-weight: 600;
@@ -277,7 +264,7 @@
             alert("Email dan password harus diisi!");
             return false;
         }
-        return true; // biarkan submit ke route login
+        return true;
     }
     </script>
 
