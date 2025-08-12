@@ -57,11 +57,12 @@
         margin-bottom: 8px;
     }
 
+    /* 
     h1 {
         font-size: 46px;
         margin: 0;
         color: var(--text-color);
-    }
+    } */
 
     p.lead {
         color: var(--muted);
